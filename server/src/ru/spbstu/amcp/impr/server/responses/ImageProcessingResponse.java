@@ -8,6 +8,15 @@ public class ImageProcessingResponse implements Serializable {
     private int statusCode;
     private boolean responseToGetRequest;
     private String pathToProcessedImage;
+    private String id;
+    
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getStatus() {
         return status;
@@ -43,6 +52,7 @@ public class ImageProcessingResponse implements Serializable {
 
     public static void printMe(ImageProcessingResponse response) {
         System.out.println("{");
+        System.out.println("\t'id':" + response.id);
         System.out.println("\t\"pathToProcessedImage\":\"" + response.pathToProcessedImage + "\"");
         System.out.println("\t\"status\":\"" + response.status + "\"");
         System.out.println("\t'statusCode':" + response.statusCode);

@@ -5,8 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -41,6 +39,16 @@ public class ImageProcessorClient {
                 }
             });
         }
+        try {
+            CompletableFuture.allOf(tasks).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Time to process all requests: " + (System.currentTimeMillis() - start));
+        killServier();
+    }
+
+    private static void killServier() {
         ImageProcessingRequest poisonPill = new ImageProcessingRequest().setPoisoned(true);
         try (Socket clientSocket = new Socket("127.0.0.1", port)) {
             //            clientSocket.setKeepAlive(true);
@@ -50,12 +58,6 @@ public class ImageProcessorClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            CompletableFuture.allOf(tasks).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Time to process all requests: " + (System.currentTimeMillis() - start));
     }
 
     private static void processImageProcessingResponse(ImageProcessingResponse response) {
