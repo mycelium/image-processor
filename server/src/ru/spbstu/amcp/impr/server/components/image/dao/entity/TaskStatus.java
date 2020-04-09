@@ -1,4 +1,4 @@
-package ru.spbstu.amcp.impr.server.requests;
+package ru.spbstu.amcp.impr.server.components.image.dao.entity;
 
 public enum TaskStatus {
     created,
