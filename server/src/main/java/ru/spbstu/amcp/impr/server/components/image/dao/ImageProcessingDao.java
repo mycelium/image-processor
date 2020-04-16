@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.TaskStatus;
 
@@ -23,7 +26,9 @@ public class ImageProcessingDao {
 
     private static ImageProcessingDao instance;
     private static final Object monitor = new Object();
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessingDao.class);
+    
     private ImageProcessingDao() {
         super();
         this.createDatabase();
@@ -35,10 +40,10 @@ public class ImageProcessingDao {
         try (Connection conn = DriverManager.getConnection(database); Statement stmt = conn.createStatement()) {
             if (conn != null) {
                 stmt.execute(createTaskTableSqL);
-                System.out.println("A new task table created");
+                logger.debug("A new task table created");
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         if (isDebug) {
             printDriverInfoAndTables();
@@ -61,7 +66,7 @@ public class ImageProcessingDao {
                 throw new SQLException("Multiple records found by id");
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return Optional.empty();
     }
@@ -73,7 +78,7 @@ public class ImageProcessingDao {
             stmt.setString(2, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
@@ -86,7 +91,7 @@ public class ImageProcessingDao {
             stmt.setString(3, pathToImage.toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return id;
     }
@@ -101,7 +106,7 @@ public class ImageProcessingDao {
                 resultList.add(new ImageProcessingTask(rs.getString("id"), rs.getString("status"), rs.getString("filename")));
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return resultList;
     }
@@ -109,17 +114,17 @@ public class ImageProcessingDao {
     private void printDriverInfoAndTables() {
         try (Connection conn = DriverManager.getConnection(database)) {
             DatabaseMetaData meta = conn.getMetaData();
-            System.out.println("The driver name is " + meta.getDriverName());
+            logger.debug("The driver name is " + meta.getDriverName());
             ResultSet tables = meta.getTables(null, null, "tasks", null);
             while (tables.next()) {
-                System.out.println("Table name: " + tables.getString("Table_NAME"));
-                System.out.println("Table type: " + tables.getString("TABLE_TYPE"));
-                System.out.println("Table schema: " + tables.getString("TABLE_SCHEM"));
-                System.out.println("Table catalog: " + tables.getString("TABLE_CAT"));
-                System.out.println(" ");
+                logger.debug("Table name: " + tables.getString("Table_NAME"));
+                logger.debug("Table type: " + tables.getString("TABLE_TYPE"));
+                logger.debug("Table schema: " + tables.getString("TABLE_SCHEM"));
+                logger.debug("Table catalog: " + tables.getString("TABLE_CAT"));
+                logger.debug(" ");
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 

@@ -1,13 +1,14 @@
-package ru.spbstu.amcp.impr.server.requests;
+package ru.spbstu.amcp.impr.server.components.image.api.dto;
 
 import java.io.Serializable;
+
+import com.google.gson.Gson;
 
 public class ImageProcessingRequest implements Serializable {
     
     private String pathToImage;
     private boolean getRequest;
     private boolean poisoned;
-    
     
     public String getPathToImage() {
         return pathToImage;
@@ -24,12 +25,6 @@ public class ImageProcessingRequest implements Serializable {
         return this;
     }
     
-    public static void printMe(ImageProcessingRequest request) {
-        System.out.println("{");
-        System.out.println("\t\"pathToImage\":\""+request.pathToImage+"\"");
-        System.out.println("\t'getRequest':"+request.getRequest);
-        System.out.println("}");
-    }
     public boolean isPoisoned() {
         return poisoned;
     }
@@ -38,4 +33,8 @@ public class ImageProcessingRequest implements Serializable {
         return this;
     }
     
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import ru.spbstu.amcp.impr.server.requests.ImageProcessingRequest;
-import ru.spbstu.amcp.impr.server.responses.ImageProcessingResponse;
+import ru.spbstu.amcp.impr.server.components.image.api.dto.ImageProcessingRequest;
+import ru.spbstu.amcp.impr.server.components.image.api.dto.ImageProcessingResponse;
 
 public class ImageProcessorClient {
 
@@ -62,6 +62,5 @@ public class ImageProcessorClient {
 
     private static void processImageProcessingResponse(ImageProcessingResponse response) {
         System.out.println("I'am client thread: " + Thread.currentThread().getName());
-        ImageProcessingResponse.printMe(response);
     }
 }

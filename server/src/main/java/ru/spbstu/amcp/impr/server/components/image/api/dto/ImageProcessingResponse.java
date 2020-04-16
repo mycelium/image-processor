@@ -1,6 +1,8 @@
-package ru.spbstu.amcp.impr.server.responses;
+package ru.spbstu.amcp.impr.server.components.image.api.dto;
 
 import java.io.Serializable;
+
+import com.google.gson.Gson;
 
 public class ImageProcessingResponse implements Serializable {
 
@@ -49,15 +51,9 @@ public class ImageProcessingResponse implements Serializable {
     public void setResponseToGetRequest(boolean responseToGetRequest) {
         this.responseToGetRequest = responseToGetRequest;
     }
-
-    public static void printMe(ImageProcessingResponse response) {
-        System.out.println("{");
-        System.out.println("\t'id':" + response.id);
-        System.out.println("\t\"pathToProcessedImage\":\"" + response.pathToProcessedImage + "\"");
-        System.out.println("\t\"status\":\"" + response.status + "\"");
-        System.out.println("\t'statusCode':" + response.statusCode);
-        System.out.println("\t'responseToGetRequest':" + response.responseToGetRequest);
-        System.out.println("}");
+    
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
-
 }

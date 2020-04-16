@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ProcessedImage;
 import ru.spbstu.amcp.impr.server.components.image.dao.ImageProcessingDao;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
@@ -19,6 +22,8 @@ public class ImageProcessingService {
     private static ImageProcessingService instance;
     private static final Object monitor = new Object();
     private static final String rootPath = "images";
+    
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessingService.class);
     
     private ExecutorService processImageThreadPool;
     private Path root;
@@ -64,10 +69,10 @@ public class ImageProcessingService {
                         e.printStackTrace();
                     }
                 } else {
-                    System.err.println("I will not process task(" + task.get().getId() + ") with status: " + status);
+                    logger.error("I will not process task(" + task.get().getId() + ") with status: " + status);
                 }
             } else {
-                System.err.println("Can't find task by id: " + id);
+                logger.error("Can't find task by id: " + id);
             }
         });
         return result;
