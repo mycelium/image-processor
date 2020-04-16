@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.spbstu.amcp.impr.server.components.common.AppConfig;
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ProcessedImage;
 import ru.spbstu.amcp.impr.server.components.image.dao.ImageProcessingDao;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
@@ -21,20 +22,18 @@ public class ImageProcessingService {
 
     private static ImageProcessingService instance;
     private static final Object monitor = new Object();
-    private static final String rootPath = "images";
-    
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessingService.class);
-    
+
     private ExecutorService processImageThreadPool;
     private Path root;
 
     private ImageProcessingDao taskDao;
-    
+
     private ImageProcessingService() {
         super();
         taskDao = ImageProcessingDao.getInstance();
         processImageThreadPool = Executors.newFixedThreadPool(2);
-        root = Paths.get(rootPath);
+        root = Paths.get(AppConfig.getInstantce().getString("root.path").orElseThrow(RuntimeException::new));
     }
 
     public ProcessedImage getImageByName(String imageName) {

@@ -16,21 +16,23 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.spbstu.amcp.impr.server.components.common.AppConfig;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.TaskStatus;
 
 public class ImageProcessingDao {
 
-    private static final String database = "jdbc:sqlite:db/tasks.db";
-    private static final boolean isDebug = true;
-
     private static ImageProcessingDao instance;
     private static final Object monitor = new Object();
     
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessingDao.class);
+    private String database;
+    private boolean isDebug;
     
     private ImageProcessingDao() {
         super();
+        this.database = AppConfig.getInstantce().getString("database.url").get();
+        this.isDebug = AppConfig.getInstantce().getBoolean("isDebug");
         this.createDatabase();
     }
 
