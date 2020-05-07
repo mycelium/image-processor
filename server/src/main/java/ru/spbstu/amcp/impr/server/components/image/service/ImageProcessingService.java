@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ImageProcessingService {
     private ImageProcessingService() {
         super();
         taskDao = ImageProcessingDao.getInstance();
-        processImageThreadPool = Executors.newFixedThreadPool(2);
+        processImageThreadPool = Executors.newFixedThreadPool(AppConfig.getInstantce().getInt("image.processing.threads").orElse(1));
         root = Paths.get(AppConfig.getInstantce().getString("root.path").orElseThrow(RuntimeException::new));
     }
 
@@ -75,6 +76,18 @@ public class ImageProcessingService {
             }
         });
         return result;
+    }
+
+    public void shutdown() {
+        processImageThreadPool.shutdown();
+    }
+
+    public boolean isShutdown() {
+        return processImageThreadPool.isShutdown();
+    }
+
+    public void waitUntilShutdowned(long timeout, TimeUnit unit) throws InterruptedException {
+        processImageThreadPool.awaitTermination(timeout, unit);
     }
 
     public static ImageProcessingService getInstnance() {

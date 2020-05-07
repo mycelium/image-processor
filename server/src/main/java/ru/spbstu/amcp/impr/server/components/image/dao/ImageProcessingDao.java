@@ -37,8 +37,12 @@ public class ImageProcessingDao {
     }
 
     private void createDatabase() {
-        String createTaskTableSqL = "CREATE TABLE IF NOT EXISTS tasks (\n" + "    id text PRIMARY KEY,\n" + "    status text NOT NULL,\n"
-                + "    filename text NOT NULL\n" + ");";
+        String createTaskTableSqL = "CREATE TABLE IF NOT EXISTS tasks (\n" 
+                + "    id text PRIMARY KEY,\n" 
+                + "    status text NOT NULL,\n"
+                + "    filename text NOT NULL,\n" 
+                + "    updated_at INTEGER NOT NULL\n" 
+                + ");";
         try (Connection conn = DriverManager.getConnection(database); Statement stmt = conn.createStatement()) {
             if (conn != null) {
                 stmt.execute(createTaskTableSqL);
@@ -53,7 +57,7 @@ public class ImageProcessingDao {
     }
 
     public Optional<ImageProcessingTask> getTaskById(String id) {
-        String selectSQL = "SELECT id, status, filename " + "FROM tasks WHERE id = ?";
+        String selectSQL = "SELECT id, status, filename, updated_at " + "FROM tasks WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(database); PreparedStatement pstmt = conn.prepareStatement(selectSQL)) {
             pstmt.setString(1, id);
             ResultSet rs = pstmt.executeQuery();
@@ -62,6 +66,7 @@ public class ImageProcessingDao {
                 task.setId(rs.getString("id"));
                 task.setStatus(rs.getString("status"));
                 task.setFilename(rs.getString("filename"));
+                task.setUpdated(rs.getLong("updated_at"));
                 return Optional.of(task);
             }
             if (rs.next()) {
@@ -74,10 +79,11 @@ public class ImageProcessingDao {
     }
 
     public void updateTaskStatus(String id, TaskStatus newStatus) {
-        String updateSQL = "UPDATE tasks SET status=? WHERE id=?";
+        String updateSQL = "UPDATE tasks SET status=?, updated_at=? WHERE id=?";
         try (Connection conn = DriverManager.getConnection(database); PreparedStatement stmt = conn.prepareStatement(updateSQL)) {
             stmt.setString(1, newStatus.toString());
-            stmt.setString(2, id);
+            stmt.setLong(2, System.currentTimeMillis());
+            stmt.setString(3, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -85,12 +91,13 @@ public class ImageProcessingDao {
     }
 
     public String createTask(Path pathToImage) {
-        String insetSQL = "INSERT INTO tasks(id,status,filename) VALUES(?,?,?)";
+        String insetSQL = "INSERT INTO tasks(id,status,filename, updated_at) VALUES(?,?,?,?)";
         String id = UUID.randomUUID().toString();
         try (Connection conn = DriverManager.getConnection(database); PreparedStatement stmt = conn.prepareStatement(insetSQL)) {
             stmt.setString(1, id);
             stmt.setString(2, TaskStatus.created.toString());
             stmt.setString(3, pathToImage.toString());
+            stmt.setLong(4, System.currentTimeMillis());
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -100,12 +107,12 @@ public class ImageProcessingDao {
 
     public List<ImageProcessingTask> getAllTasks() {
         List<ImageProcessingTask> resultList = new LinkedList<>();
-        String sql = "SELECT id, status, filename FROM tasks";
+        String sql = "SELECT id, status, filename, updated_at FROM tasks ORDER BY updated_at ASC";
         try (Connection conn = DriverManager.getConnection(database);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                resultList.add(new ImageProcessingTask(rs.getString("id"), rs.getString("status"), rs.getString("filename")));
+                resultList.add(new ImageProcessingTask(rs.getString("id"), rs.getString("status"), rs.getString("filename"), rs.getLong("updated_at")));
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());

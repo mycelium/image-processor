@@ -4,15 +4,17 @@ public class ImageProcessingTask {
     private String id;
     private String status;
     private String filename;
+    private long updated;
     
     public ImageProcessingTask() {
         super();
     }
-    public ImageProcessingTask(String id, String status, String filename) {
+    public ImageProcessingTask(String id, String status, String filename, long updated) {
         super();
         this.id = id;
         this.status = status;
         this.filename = filename;
+        this.updated = updated;
     }
 
     public String getId() {
@@ -22,7 +24,14 @@ public class ImageProcessingTask {
     public void setId(String id) {
         this.id = id;
     }
-
+    
+    public long getUpdated() {
+        return updated;
+    }
+    public void setUpdated(long updated) {
+        this.updated = updated;
+    }
+    
     public TaskStatus getStatus() {
         return TaskStatus.valueOf(status);
     }
