@@ -19,8 +19,9 @@ import org.slf4j.LoggerFactory;
 import ru.spbstu.amcp.impr.server.components.common.AppConfig;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.TaskStatus;
+import ru.spbstu.amcp.impr.server.components.image.service.ImageProcessingTaskDao;
 
-public class ImageProcessingDao {
+public class ImageProcessingDao implements ImageProcessingTaskDao{
 
     private static ImageProcessingDao instance;
     private static final Object monitor = new Object();

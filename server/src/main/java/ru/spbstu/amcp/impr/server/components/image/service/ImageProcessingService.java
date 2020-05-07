@@ -28,7 +28,7 @@ public class ImageProcessingService {
     private ExecutorService processImageThreadPool;
     private Path root;
 
-    private ImageProcessingDao taskDao;
+    private ImageProcessingTaskDao taskDao;
 
     private ImageProcessingService() {
         super();
