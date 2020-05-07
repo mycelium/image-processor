@@ -12,29 +12,31 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import ru.spbstu.amcp.impr.server.components.common.AppConfig;
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ProcessedImage;
-import ru.spbstu.amcp.impr.server.components.image.dao.ImageProcessingDao;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.TaskStatus;
 
+@Service
 public class ImageProcessingService {
 
-    private static ImageProcessingService instance;
-    private static final Object monitor = new Object();
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessingService.class);
 
     private ExecutorService processImageThreadPool;
     private Path root;
 
+    @Autowired
     private ImageProcessingTaskDao taskDao;
 
-    private ImageProcessingService() {
+    private ImageProcessingService(
+                                    @Value("${root.path}") Optional<String> rootPath,
+                                    @Value("${image.processing.threads}") Optional<Integer> numOfThreads) {
         super();
-        taskDao = ImageProcessingDao.getInstance();
-        processImageThreadPool = Executors.newFixedThreadPool(AppConfig.getInstantce().getInt("image.processing.threads").orElse(1));
-        root = Paths.get(AppConfig.getInstantce().getString("root.path").orElseThrow(RuntimeException::new));
+        processImageThreadPool = Executors.newFixedThreadPool(numOfThreads.orElse(1));
+        root = Paths.get(rootPath.orElseThrow(RuntimeException::new));
     }
 
     public ProcessedImage getImageByName(String imageName) {
@@ -88,16 +90,5 @@ public class ImageProcessingService {
 
     public void waitUntilShutdowned(long timeout, TimeUnit unit) throws InterruptedException {
         processImageThreadPool.awaitTermination(timeout, unit);
-    }
-
-    public static ImageProcessingService getInstnance() {
-        if (instance == null) {
-            synchronized (monitor) {
-                if (instance == null) {
-                    instance = new ImageProcessingService();
-                }
-            }
-        }
-        return instance;
     }
 }

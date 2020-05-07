@@ -15,35 +15,30 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
-import ru.spbstu.amcp.impr.server.components.common.AppConfig;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.ImageProcessingTask;
 import ru.spbstu.amcp.impr.server.components.image.dao.entity.TaskStatus;
 import ru.spbstu.amcp.impr.server.components.image.service.ImageProcessingTaskDao;
 
-public class ImageProcessingDao implements ImageProcessingTaskDao{
+@Repository
+public class ImageProcessingDao implements ImageProcessingTaskDao {
 
-    private static ImageProcessingDao instance;
-    private static final Object monitor = new Object();
-    
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessingDao.class);
+    @Value("${database.url}")
     private String database;
+    @Value("${isDebug}")
     private boolean isDebug;
-    
+
     private ImageProcessingDao() {
         super();
-        this.database = AppConfig.getInstantce().getString("database.url").get();
-        this.isDebug = AppConfig.getInstantce().getBoolean("isDebug");
         this.createDatabase();
     }
 
     private void createDatabase() {
-        String createTaskTableSqL = "CREATE TABLE IF NOT EXISTS tasks (\n" 
-                + "    id text PRIMARY KEY,\n" 
-                + "    status text NOT NULL,\n"
-                + "    filename text NOT NULL,\n" 
-                + "    updated_at INTEGER NOT NULL\n" 
-                + ");";
+        String createTaskTableSqL = "CREATE TABLE IF NOT EXISTS tasks (\n" + "    id text PRIMARY KEY,\n" + "    status text NOT NULL,\n"
+                + "    filename text NOT NULL,\n" + "    updated_at INTEGER NOT NULL\n" + ");";
         try (Connection conn = DriverManager.getConnection(database); Statement stmt = conn.createStatement()) {
             if (conn != null) {
                 stmt.execute(createTaskTableSqL);
@@ -113,7 +108,8 @@ public class ImageProcessingDao implements ImageProcessingTaskDao{
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                resultList.add(new ImageProcessingTask(rs.getString("id"), rs.getString("status"), rs.getString("filename"), rs.getLong("updated_at")));
+                resultList.add(new ImageProcessingTask(rs.getString("id"), rs.getString("status"), rs.getString("filename"),
+                        rs.getLong("updated_at")));
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -136,16 +132,5 @@ public class ImageProcessingDao implements ImageProcessingTaskDao{
         } catch (SQLException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    public static ImageProcessingDao getInstance() {
-        if (instance == null) {
-            synchronized (monitor) {
-                if (instance == null) {
-                    instance = new ImageProcessingDao();
-                }
-            }
-        }
-        return instance;
     }
 }

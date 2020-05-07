@@ -10,18 +10,24 @@ import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ImageProcessingRequest;
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ImageProcessingResponse;
 import ru.spbstu.amcp.impr.server.components.image.api.dto.ProcessedImage;
 import ru.spbstu.amcp.impr.server.components.image.service.ImageProcessingService;
 
+@Component
 public class ImageSocket {
 
     private ExecutorService processSocketRequestsThreadPool;
     private int port;
     private static volatile boolean isAlive = true;
     private static final Logger logger = LoggerFactory.getLogger(ImageSocket.class);
+    
+    @Autowired
+    private ImageProcessingService imageService;
     
     public ImageSocket(ExecutorService processSocketRequestsThreadPool, int port) {
         super();
@@ -69,21 +75,20 @@ public class ImageSocket {
         }
     }
 
-    private static ImageProcessingResponse processRequest(ImageProcessingRequest request) {
-        ImageProcessingService service = ImageProcessingService.getInstnance();
+    private ImageProcessingResponse processRequest(ImageProcessingRequest request) {
         logger.debug("I'am server thread: " + Thread.currentThread().getName());
         logger.debug(request.toString());
         ProcessedImage result = null;
         if (request.isGetRequest()) {
-            result = service.getImageByName(request.getPathToImage());
+            result = imageService.getImageByName(request.getPathToImage());
         } else {
-            result = service.processImage(request.getPathToImage());
+            result = imageService.processImage(request.getPathToImage());
         }
         return mapToImageProcessingRespoonse(request, result);
 
     }
 
-    private static ImageProcessingResponse mapToImageProcessingRespoonse(ImageProcessingRequest request, ProcessedImage result) {
+    private ImageProcessingResponse mapToImageProcessingRespoonse(ImageProcessingRequest request, ProcessedImage result) {
         ImageProcessingResponse response = new ImageProcessingResponse();
         response.setId(result.getId());
         response.setPathToProcessedImage(result.getPathToProcessedImage());
@@ -94,11 +99,11 @@ public class ImageSocket {
         return response;
     }
 
-    private static synchronized boolean isAlive() {
+    private synchronized boolean isAlive() {
         return isAlive;
     }
 
-    private static synchronized void setAlive(boolean livenessFlag) {
+    private synchronized void setAlive(boolean livenessFlag) {
         isAlive = livenessFlag;
     }
 }
