@@ -7,14 +7,16 @@ public class ProcessedImage {
     public String getPathToProcessedImage() {
         return pathToProcessedImage;
     }
-    public void setPathToProcessedImage(String pathToProcessedImage) {
+    public ProcessedImage setPathToProcessedImage(String pathToProcessedImage) {
         this.pathToProcessedImage = pathToProcessedImage;
+        return this;
     }
     public String getId() {
         return id;
     }
-    public void setId(String id) {
+    public ProcessedImage setId(String id) {
         this.id = id;
+        return this;
     }
     
 }

@@ -2,12 +2,16 @@ plugins {
     java
     application
     eclipse
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 repositories {
-    jcenter()
+	jcenter()
 }
 
+application {
+    mainClass.set("ru.spbstu.amcp.impr.server.Main")
+}
 
 val logbackVersion="1.2.3"
 val springVersion="5.2.6.RELEASE"
@@ -22,6 +26,13 @@ dependencies {
     implementation("org.springframework:spring-core:${springVersion}")
     implementation("org.springframework:spring-context:${springVersion}")
     implementation("org.springframework:spring-beans:${springVersion}")
+    implementation("org.springframework:spring-webmvc:${springVersion}")
+	// Embedded servlet container
+//    implementation("org.apache.tomcat.embed:tomcat-embed-jasper:9.0.35")
+    implementation("org.apache.tomcat.embed:tomcat-embed-jasper:8.5.55")
+    
+    
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.4")
 }
 
 application {
